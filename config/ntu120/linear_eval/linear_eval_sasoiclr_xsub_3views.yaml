@@ -1,0 +1,60 @@
+work_dir: ./data/gty/AAAI_github/ntu120/sasoiclr_3s/linear_eval
+# weights: weights/crossclr_3views_xview_frame50_channel16_cross150_epoch300.pt
+weights: .\data\gty\AAAI_github\ntu120\sasoiclr_3s\pretext_xsub\epoch300_model.pt
+ignore_weights: [encoder_q.fc, encoder_q_motion.fc, encoder_q_bone.fc, encoder_k, encoder_k_motion, encoder_k_bone, queue, queue_motion, queue_bone,projector_query_q, projector_key_q, projector_value_q, projector_query_k, projector_key_k, projector_value_k, a, b,
+projector_query_motion_q, projector_key_motion_q, projector_value_motion_q, projector_query_motion_k, projector_key_motion_k, projector_value_motion_k, a_motion, b_motion,
+projector_query_bone_q, projector_key_bone_q, projector_value_bone_q, projector_query_bone_k, projector_key_bone_k, projector_value_bone_k, a_bone, b_bone]
+
+# feeder
+train_feeder: feeder.ntu_feeder.Feeder_single
+train_feeder_args:
+  data_path: D:\utils\PycharmProjects\SSL-Action-Recognition\AimCLR-main\data\gty\action_dataset\ntu120\xsub\train_position.npy
+  label_path: D:\utils\PycharmProjects\SSL-Action-Recognition\AimCLR-main\data\gty\action_dataset\ntu120\xsub\train_label.pkl
+  shear_amplitude: -1
+  temperal_padding_ratio: -1
+  mmap: True
+test_feeder: feeder.ntu_feeder.Feeder_single
+test_feeder_args:
+  data_path: D:\utils\PycharmProjects\SSL-Action-Recognition\AimCLR-main\data\gty\action_dataset\ntu120\xsub\val_position.npy
+  label_path: D:\utils\PycharmProjects\SSL-Action-Recognition\AimCLR-main\data\gty\action_dataset\ntu120\xsub\val_label.pkl
+  shear_amplitude: -1
+  temperal_padding_ratio: -1
+  mmap: True
+
+# model
+model: net.crossclr_3views.SaSOiCLR_3s
+model_args:
+  base_encoder: net.st_gcn.Model
+  pretrain: False
+  # feature_dim: 128
+  # queue_size: 32768
+  # momentum: 0.999
+  # Temperature: 0.07
+  # mlp: True
+  in_channels: 3
+  hidden_channels: 16
+  hidden_dim: 256
+  num_class: 120
+  dropout: 0.5
+  graph_args:
+    layout: 'ntu-rgb+d'
+    strategy: 'spatial'
+  edge_importance_weighting: True
+
+# optim
+nesterov: False
+weight_decay: 0.0
+base_lr: 3.
+optimizer: SGD
+step: [80]
+
+# training
+device: [0]
+batch_size: 128
+test_batch_size: 128
+num_epoch: 100
+stream: 'joint'
+
+# log
+save_interval: -1
+eval_interval: 5
